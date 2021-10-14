@@ -11,8 +11,8 @@ const main = async () => {
   await page.goto(urls.startUrl());
   await page.click(selectors.loginButton());
   await page.screenshot({ path: screenshotPath(`example.png`) });
-  await page.fill(`input[name="mfid_user[email]"]`, env.EMAIL);
-  await page.click(`input[type="submit"]`);
+  await page.fill(selectors.emailInput(), env.EMAIL);
+  await page.click(selectors.submitButton());
   await page.fill(`input[name="mfid_user[password]"]`, env.PASSWORD);
   await page.click(`input[type="submit"]`);
   await page.goto(urls.attendanceUrl(args.year, args.month));
