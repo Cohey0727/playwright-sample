@@ -13,8 +13,8 @@ const main = async () => {
   await page.screenshot({ path: screenshotPath(`example.png`) });
   await page.fill(selectors.emailInput(), env.EMAIL);
   await page.click(selectors.submitButton());
-  await page.fill(`input[name="mfid_user[password]"]`, env.PASSWORD);
-  await page.click(`input[type="submit"]`);
+  await page.fill(selectors.passwordInput(), env.PASSWORD);
+  await page.click(selectors.submitButton());
   await page.goto(urls.attendanceUrl(args.year, args.month));
   const timeInputs = await page.$$(selectors.timeInput());
   let index = 0;
