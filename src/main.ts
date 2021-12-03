@@ -19,7 +19,6 @@ const main = async () => {
   const calendarRows = await page.$$(selectors.calendarRow());
   for (const calendarRow of calendarRows) {
     const dayCell = await calendarRow.$(selectors.classificationCell());
-    console.log(dayCell);
     if (!(await isWorkday(dayCell))) continue;
     const inputCells = await calendarRow.$$(selectors.inputCell());
     const timeInputValues = Object.values(timeInputs);
@@ -81,7 +80,6 @@ const workDayKeyword = "平日";
 const isWorkday = async (
   dayCell: ElementHandle<SVGElement | HTMLElement> | null
 ) => {
-  console.log(dayCell);
   if (dayCell === null) return false;
   const innerText = await dayCell.innerText();
   return innerText.includes(workDayKeyword);
