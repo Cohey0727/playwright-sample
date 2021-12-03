@@ -1,4 +1,4 @@
-import { chromium } from "playwright";
+import { chromium, ElementHandle } from "playwright";
 import { screenshotPath } from "./utils";
 import env from "./env";
 import args from "./args";
@@ -16,16 +16,23 @@ const main = async () => {
   await page.fill(selectors.passwordInput(), env.PASSWORD);
   await page.click(selectors.submitButton());
   await page.goto(urls.attendanceUrl(args.year, args.month));
-  const timeInputs = await page.$$(selectors.timeInput());
-  let index = 0;
-  for (const timeInput of timeInputs) {
-    const inputColumn = inputColumns[index % inputColumns.length];
-    const getValue = inputColumn.getValue;
-    if (getValue) {
-      const timeString = getValue();
-      await timeInput.fill(timeString);
+  const calendarRows = await page.$$(selectors.calendarRow());
+  console.log(calendarRows);
+  for (const calendarRow of calendarRows) {
+    const dayCell = await calendarRow.$(selectors.classificationCell());
+    console.log(dayCell);
+    if (!(await isWorkday(dayCell))) continue;
+    const inputCells = await calendarRow.$$(selectors.inputCell());
+    const timeInputValues = Object.values(timeInputs);
+    for (const timeInput of timeInputValues) {
+      const { index, getValue } = timeInput;
+      const inputCell = inputCells[index];
+      const timeCell = await inputCell.$(selectors.timeInput());
+      if (getValue) {
+        const value = getValue();
+        timeCell?.fill(value);
+      }
     }
-    index++;
   }
 };
 
@@ -36,16 +43,24 @@ const businessTime = {
   end: ["19:00", "22:00"] as TimeRange,
 };
 
-const inputColumns = [
-  {
+const timeInputs = {
+  attendanceStart: {
+    index: 0,
     getValue: () => getRandomTimeString(businessTime.start),
   },
-  {
+  attendanceEnd: {
+    index: 1,
     getValue: () => getRandomTimeString(businessTime.end),
   },
-  {},
-  {},
-];
+  breakStart: {
+    index: 2,
+    getValue: null,
+  },
+  breakEnd: {
+    index: 3,
+    getValue: null,
+  },
+};
 
 const getRandomTimeString = (timeRange: TimeRange) => {
   const timeValueRange = timeRange.map((timeString) => {
@@ -61,6 +76,16 @@ const getRandomTimeString = (timeRange: TimeRange) => {
   const hour = Math.floor(randomTime);
   const minutes = Math.floor((randomTime * 60) % 60);
   return `${("0" + hour).slice(-2)}:${("0" + minutes).slice(-2)}`;
+};
+
+const workDayKeyword = "平日";
+const isWorkday = async (
+  dayCell: ElementHandle<SVGElement | HTMLElement> | null
+) => {
+  console.log(dayCell);
+  if (dayCell === null) return false;
+  const innerText = await dayCell.innerText();
+  return innerText.includes(workDayKeyword);
 };
 
 export default main;
