@@ -17,7 +17,6 @@ const main = async () => {
   await page.click(selectors.submitButton());
   await page.goto(urls.attendanceUrl(args.year, args.month));
   const calendarRows = await page.$$(selectors.calendarRow());
-  console.log(calendarRows);
   for (const calendarRow of calendarRows) {
     const dayCell = await calendarRow.$(selectors.classificationCell());
     console.log(dayCell);
