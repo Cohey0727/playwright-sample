@@ -15,5 +15,5 @@ $ cp .env.sample .env
 ## Execute
 
 ```shell
-$ yarn start yarn=2021 month=9
+$ yarn start year=2021 month=9
 ```
